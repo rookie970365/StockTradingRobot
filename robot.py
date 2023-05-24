@@ -41,7 +41,7 @@ class TradingRobot:
         self.quantity_limit: int = 2
         self.db_logger = DBLogger("dblogger.db")
 
-    async def is_market_open(self):
+    async def waiting_market_open(self):
         """
         Проверяет открыт ли рынок и доступен ли для торговли текущий инструмент.
         """
@@ -221,7 +221,7 @@ class TradingRobot:
     async def start(self):
         while True:
             try:
-                await self.is_market_open()
+                await self.waiting_market_open()
                 borders = await self.strategy.calculate_borders()
                 position_lots = await self.get_position_lots()
                 orders = await broker_client.get_orders(account_id=self.account_id)
