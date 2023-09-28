@@ -12,10 +12,9 @@ from tinkoff.invest.grpc.orders_pb2 import (
     ORDER_TYPE_MARKET,
 )
 
-import settings
 from client import broker_client
 from db.db_logger import DBLogger
-from settings import ACCOUNT_ID
+from settings import ACCOUNT_ID, CHECK_INTERVAL, QUATITY_LIMIT
 
 from strategies.MomentumStrategy import MomentumStrategy
 from telegram.telegram_service import telegram_bot
@@ -38,8 +37,8 @@ class TradingRobot:
         self.figi = figi
         self.account_id = ACCOUNT_ID
         self.strategy = MomentumStrategy(figi)
-        self.check_interval: int = settings.check_interval
-        self.quantity_limit: int = settings.quantity_limit
+        self.check_interval: int = CHECK_INTERVAL
+        self.quantity_limit: int = QUATITY_LIMIT
         self.db_logger = DBLogger("dblogger.db")
 
     async def waiting_market_open(self):
@@ -48,8 +47,8 @@ class TradingRobot:
         """
         trading_status = await broker_client.get_trading_status(figi=self.figi)
         while not (
-            trading_status.market_order_available_flag
-            and trading_status.api_trade_available_flag
+                trading_status.market_order_available_flag
+                and trading_status.api_trade_available_flag
         ):
             logger.debug(f"Waiting for the market to open. figi={self.figi}")
             await asyncio.sleep(60)
