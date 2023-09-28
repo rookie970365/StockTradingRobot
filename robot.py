@@ -12,6 +12,7 @@ from tinkoff.invest.grpc.orders_pb2 import (
     ORDER_TYPE_MARKET,
 )
 
+import settings
 from client import broker_client
 from db.db_logger import DBLogger
 from settings import ACCOUNT_ID
@@ -37,8 +38,8 @@ class TradingRobot:
         self.figi = figi
         self.account_id = ACCOUNT_ID
         self.strategy = MomentumStrategy(figi)
-        self.check_interval: int = 60
-        self.quantity_limit: int = 2
+        self.check_interval: int = settings.check_interval
+        self.quantity_limit: int = settings.quantity_limit
         self.db_logger = DBLogger("dblogger.db")
 
     async def waiting_market_open(self):

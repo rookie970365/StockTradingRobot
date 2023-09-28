@@ -5,6 +5,7 @@ import numpy as np
 from tinkoff.invest import HistoricCandle, CandleInterval
 from tinkoff.invest.utils import now
 
+import settings
 from client import broker_client
 from utils.quotation import quotation_to_float
 
@@ -20,8 +21,8 @@ class MomentumStrategy:
 
     def __init__(self, figi: str):
         self.figi = figi
-        self.interval_size: float = 0.8
-        self.days_back: int = 10
+        self.days_back: int = settings.days_back
+        self.interval_size: float = 0.8  # статистическая величина для расчета процентиля
 
     async def get_historical_data(self) -> list[HistoricCandle]:
         """
@@ -33,10 +34,10 @@ class MomentumStrategy:
             f"Start getting {self.figi} historical data for last {self.days_back} days"
         )
         async for candle in broker_client.get_all_candles(
-            figi=self.figi,
-            from_=now() - timedelta(days=self.days_back),
-            to=now(),
-            interval=CandleInterval.CANDLE_INTERVAL_1_MIN,
+                figi=self.figi,
+                from_=now() - timedelta(days=self.days_back),
+                to=now(),
+                interval=CandleInterval.CANDLE_INTERVAL_1_MIN,
         ):
             candles.append(candle)
         logger.debug(f"Found {len(candles)} candles {self.figi}")
